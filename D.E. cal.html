@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diffraction Efficiency Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --surface2: #efefeb;
+      --border: #ddddd8;
+      --text: #1a1a18;
+      --muted: #888880;
+      --accent: #1D9E75;
+      --accent-light: #e1f5ee;
+      --accent-text: #0F6E56;
+      --warn: #BA7517;
+      --warn-light: #faeeda;
+      --info: #185FA5;
+      --info-light: #e6f1fb;
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 3rem 1rem 4rem;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    header {
+      margin-bottom: 2.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--accent-text);
+      background: var(--accent-light);
+      border: 1px solid #9FE1CB;
+      border-radius: 100px;
+      padding: 3px 10px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .formula-display {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 14px;
+      letter-spacing: 0.02em;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .input-group {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      transition: border-color 0.15s;
+    }
+
+    .input-group:focus-within {
+      border-color: var(--accent);
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.04em;
+    }
+
+    .input-group input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text);
+      outline: none;
+    }
+
+    .input-group input::placeholder { color: #ccc; }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    select {
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      outline: none;
+    }
+
+    select:focus { border-color: var(--accent); }
+
+    .btn-calc {
+      flex: 1;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      background: var(--text);
+      color: #fff;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-calc:hover { opacity: 0.85; }
+    .btn-calc:active { transform: scale(0.98); }
+
+    .btn-reset {
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-reset:hover { background: var(--surface2); }
+
+    .error {
+      display: none;
+      font-size: 13px;
+      color: #A32D2D;
+      background: #fcebeb;
+      border: 1px solid #F7C1C1;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 10px;
+      font-family: var(--mono);
+    }
+
+    .result-card {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .result-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .result-formula {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      line-height: 1.6;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+    }
+
+    .metric {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .metric.highlight {
+      background: var(--text);
+      color: #fff;
+    }
+
+    .metric-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .metric.highlight .metric-label { color: rgba(255,255,255,0.55); }
+
+    .metric-val {
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .metric.highlight .metric-val { color: #fff; font-size: 22px; }
+
+    .bar-wrap {
+      background: var(--surface2);
+      border-radius: 6px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: var(--accent);
+      transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .interp {
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      font-family: var(--mono);
+      color: var(--muted);
+      margin-top: 1.5rem;
+    }
+
+    @media (max-width: 480px) {
+      .inputs-grid { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metrics .metric:last-child { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">UV-Vis · Spectrometer</div>
+    <h1>Diffraction Efficiency<br>Calculator</h1>
+    <div class="formula-display">D.E. = P₁ ÷ (P₀ + P₁) × 100</div>
+  </header>
+
+  <div class="card">
+    <div class="inputs-grid">
+      <div class="input-group">
+        <label>P₀ — Undiffracted beam</label>
+        <input type="number" id="p0" placeholder="0.00" min="0" step="any" />
+      </div>
+      <div class="input-group">
+        <label>P₁ — Diffracted beam</label>
+        <input type="number" id="p1" placeholder="0.00" min="0" step="any" />
+      </div>
+    </div>
+    <div class="controls">
+      <select id="unit">
+        <option value="mW">mW</option>
+        <option value="µW">µW</option>
+        <option value="W">W</option>
+        <option value="a.u.">a.u.</option>
+      </select>
+      <button class="btn-calc" onclick="calculate()">คำนวณ →</button>
+      <button class="btn-reset" onclick="resetAll()">↺</button>
+    </div>
+    <div class="error" id="error-msg"></div>
+  </div>
+
+  <div class="result-card" id="result-section">
+    <div class="result-label">RESULT</div>
+    <div class="result-formula" id="formula-display"></div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">P₀ + P₁</div>
+        <div class="metric-val" id="total-val">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">P₁ / total</div>
+        <div class="metric-val" id="ratio-val">—</div>
+      </div>
+      <div class="metric highlight">
+        <div class="metric-label">D.E.</div>
+        <div class="metric-val" id="de-val">—</div>
+      </div>
+    </div>
+    <div class="bar-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+    <div class="bar-wrap"><div class="bar-fill" id="progress-bar" style="width:0%"></div></div>
+    <div class="interp" id="interpretation"></div>
+  </div>
+
+  <footer>Diffraction Efficiency · DE = P₁/(P₀+P₁)×100</footer>
+</div>
+
+<script>
+  function calculate() {
+    const p0 = parseFloat(document.getElementById('p0').value);
+    const p1 = parseFloat(document.getElementById('p1').value);
+    const unit = document.getElementById('unit').value;
+    const err = document.getElementById('error-msg');
+    const res = document.getElementById('result-section');
+
+    err.style.display = 'none';
+    res.style.display = 'none';
+
+    if (isNaN(p0) || isNaN(p1)) {
+      err.textContent = 'กรุณาใส่ค่า P₀ และ P₁ ให้ครบ';
+      err.style.display = 'block'; return;
+    }
+    if (p0 < 0 || p1 < 0) {
+      err.textContent = 'ค่า P₀ และ P₁ ต้องไม่ติดลบ';
+      err.style.display = 'block'; return;
+    }
+    const total = p0 + p1;
+    if (total === 0) {
+      err.textContent = 'P₀ + P₁ = 0 ไม่สามารถคำนวณได้ (หารด้วยศูนย์)';
+      err.style.display = 'block'; return;
+    }
+
+    const de = (p1 / total) * 100;
+    const ratio = p1 / total;
+
+    document.getElementById('formula-display').textContent =
+      `= ${p1.toFixed(4)} ÷ (${p0.toFixed(4)} + ${p1.toFixed(4)}) × 100\n= ${de.toFixed(4)}%`;
+    document.getElementById('total-val').textContent = `${total.toFixed(4)} ${unit}`;
+    document.getElementById('ratio-val').textContent = ratio.toFixed(6);
+    document.getElementById('de-val').textContent = `${de.toFixed(2)}%`;
+    document.getElementById('progress-bar').style.width = `${Math.min(de, 100).toFixed(2)}%`;
+
+    let level, color, bg, border;
+    if (de < 1)       { level = 'แทบไม่มีการเลี้ยวเบน';                    color='#5F5E5A'; bg='#F1EFE8'; border='#D3D1C7'; }
+    else if (de < 30) { level = 'การเลี้ยวเบนต่ำ';                          color='#185FA5'; bg='#E6F1FB'; border='#B5D4F4'; }
+    else if (de < 70) { level = 'การเลี้ยวเบนปานกลาง';                      color='#BA7517'; bg='#FAEEDA'; border='#FAC775'; }
+    else if (de < 90) { level = 'การเลี้ยวเบนสูง';                           color='#0F6E56'; bg='#E1F5EE'; border='#9FE1CB'; }
+    else              { level = 'การเลี้ยวเบนสูงมาก — ใกล้เคียง ideal grating'; color='#0F6E56'; bg='#E1F5EE'; border='#9FE1CB'; }
+
+    const interp = document.getElementById('interpretation');
+    interp.style.cssText = `background:${bg}; color:${color}; border:1px solid ${border};`;
+    interp.textContent = level;
+    res.style.display = 'block';
+  }
+
+  function resetAll() {
+    document.getElementById('p0').value = '';
+    document.getElementById('p1').value = '';
+    document.getElementById('result-section').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('progress-bar').style.width = '0%';
+  }
+
+  document.getElementById('p0').addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
+  document.getElementById('p1').addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
+</script>
+</body>
+</html>
