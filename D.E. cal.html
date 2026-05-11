@@ -306,7 +306,7 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="badge">UV-Vis · Spectrometer</div>
+    <div class="badge">Gratings</div>
     <h1>Diffraction Efficiency<br>Calculator</h1>
     <div class="formula-display">D.E. = P₁ ÷ (P₀ + P₁) × 100</div>
   </header>
@@ -372,16 +372,16 @@
     res.style.display = 'none';
 
     if (isNaN(p0) || isNaN(p1)) {
-      err.textContent = 'กรุณาใส่ค่า P₀ และ P₁ ให้ครบ';
+      err.textContent = 'please insert P₀ and P₁';
       err.style.display = 'block'; return;
     }
     if (p0 < 0 || p1 < 0) {
-      err.textContent = 'ค่า P₀ และ P₁ ต้องไม่ติดลบ';
+      err.textContent = 'P₀ and P₁ must be positive';
       err.style.display = 'block'; return;
     }
     const total = p0 + p1;
     if (total === 0) {
-      err.textContent = 'P₀ + P₁ = 0 ไม่สามารถคำนวณได้ (หารด้วยศูนย์)';
+      err.textContent = 'P₀ + P₁ = 0 can not calculate';
       err.style.display = 'block'; return;
     }
 
@@ -396,11 +396,11 @@
     document.getElementById('progress-bar').style.width = `${Math.min(de, 100).toFixed(2)}%`;
 
     let level, color, bg, border;
-    if (de < 1)       { level = 'แทบไม่มีการเลี้ยวเบน';                    color='#5F5E5A'; bg='#F1EFE8'; border='#D3D1C7'; }
-    else if (de < 30) { level = 'การเลี้ยวเบนต่ำ';                          color='#185FA5'; bg='#E6F1FB'; border='#B5D4F4'; }
-    else if (de < 70) { level = 'การเลี้ยวเบนปานกลาง';                      color='#BA7517'; bg='#FAEEDA'; border='#FAC775'; }
-    else if (de < 90) { level = 'การเลี้ยวเบนสูง';                           color='#0F6E56'; bg='#E1F5EE'; border='#9FE1CB'; }
-    else              { level = 'การเลี้ยวเบนสูงมาก — ใกล้เคียง ideal grating'; color='#0F6E56'; bg='#E1F5EE'; border='#9FE1CB'; }
+    if (de < 1)       { level = 'Negligible diffraction';                    color='#5F5E5A'; bg='#F1EFE8'; border='#D3D1C7'; }
+    else if (de < 30) { level = 'Low diffraction';                          color='#185FA5'; bg='#E6F1FB'; border='#B5D4F4'; }
+    else if (de < 70) { level = 'Moderate diffraction';                      color='#BA7517'; bg='#FAEEDA'; border='#FAC775'; }
+    else if (de < 90) { level = 'High diffraction';                           color='#0F6E56'; bg='#E1F5EE'; border='#9FE1CB'; }
+    else              { level = 'Very high diffraction — close to ideal grating'; color='#0F6E56'; bg='#E1F5EE'; border='#9FE1CB'; }
 
     const interp = document.getElementById('interpretation');
     interp.style.cssText = `background:${bg}; color:${color}; border:1px solid ${border};`;
